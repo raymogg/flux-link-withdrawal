@@ -49,8 +49,11 @@ function newWallet(privateKey: string, rpcUrl: string): ethers.Wallet {
 async function withdrawFromFeed(feed: Feed, wallet: ethers.Wallet) {
     const feedContract = new ethers.Contract(feed.contractAddress.toString(), fluxAggregatorAbi, wallet)
     const withdrawableAmount = await feedContract.withdrawablePayment(walletAddress)
-    log.info("Withdrawing amount " + ethers.utils.formatEther(withdrawableAmount) + " LINK from feed " + feed.contractAddress + ", to " + withdrawTo)
-    await feedContract.withdrawPayment(walletAddress, withdrawTo, withdrawableAmount, txOptions)
+    //Only withdraw if withdrawable amount > 1 LINK
+    if (withdrawableAmount > 0) {
+        log.info("Withdrawing amount " + ethers.utils.formatEther(withdrawableAmount) + " LINK from feed " + feed.contractAddress + ", to " + withdrawTo)
+        await feedContract.withdrawPayment(walletAddress, withdrawTo, withdrawableAmount, txOptions)
+    }
 }
 
 async function run() {
